@@ -1,4 +1,4 @@
-urllib3<2.0
+urllib3<3.0
 requests>=2.27.1
 beautifulsoup4>=4
 colorama
