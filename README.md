@@ -98,6 +98,32 @@ https://github.com/helviojunior/knowsmore
 
 ## Installation
 
+### Via pipx (recommended)
+
+[pipx](https://pipx.pypa.io/) installs KnowsMore into an isolated virtual environment, avoiding conflicts with system packages. This is the recommended method on Kali Linux and other externally-managed Python environments (PEP 668).
+
+```bash
+# Install pipx (if you don't have it yet)
+python3 -m pip install --user pipx
+
+# Make sure pipx-installed apps are on your PATH
+python3 -m pipx ensurepath
+
+# Install KnowsMore
+pipx install knowsmore
+
+# Upgrade to the latest version
+pipx upgrade knowsmore
+```
+
+*Note:* after running `pipx ensurepath` you may need to open a new terminal (or run `source ~/.bashrc` / `source ~/.zshrc`) so the `knowsmore` command becomes available.
+
+*Note:* on Python 3.12+ the `setuptools`/`pkg_resources` module is no longer bundled by default. If you hit a `No module named 'pkg_resources'` error, inject setuptools into the KnowsMore environment:
+
+```bash
+pipx inject knowsmore setuptools
+```
+
 ### Simple
 
 ```bash

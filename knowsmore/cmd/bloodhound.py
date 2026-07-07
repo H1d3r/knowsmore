@@ -120,12 +120,9 @@ class Bloodhound(CmdBase):
         edition = ''
 
         def __init__(self, name: str, edition: str, version: str):
-            from pkg_resources import parse_version
-
-            v = parse_version(version)
-
-            self.major = v.major
-            self.minor = v.minor
+            nums = re.findall(r'\d+', version or '')
+            self.major = int(nums[0]) if len(nums) > 0 else 0
+            self.minor = int(nums[1]) if len(nums) > 1 else 0
             self.release = version.replace(f"{self.major}.{self.minor}", "").strip(". ")
             self.name = name
             self.edition = edition
@@ -810,39 +807,39 @@ class Bloodhound(CmdBase):
                     # extract files
                     Color.pl('{?} {W}{D}BloodHound ZIP File identified, extracting...{W}')
 
-                    with self.get_temp_directory() as tmpdirname:
-                        try:
-                            with ZipFile(self.filename, 'r') as zObject:
-                                zObject.extractall(tmpdirname)
+                    tmpdirname = self.get_temp_directory()
+                    try:
+                        with ZipFile(self.filename, 'r') as zObject:
+                            zObject.extractall(tmpdirname)
 
-                            Color.pl('{?} {W}{D}checking file consistency...{W}')
-                            t_files = [
-                                f for f in self.get_files(tmpdirname)
-                                if f is not None or f.strip() != ''
-                            ]
-                            files = []
-                            with progress.Bar(label=" Parsing ", expected_size=len(t_files)) as bar:
-                                try:
-                                    for idx, f in enumerate(t_files):
-                                        bar.show(idx)
-                                        f1 = Bloodhound.BloodhoundFile(f)
-                                        if f1.type != 'unknown':
-                                            files.append(f1)
-                                        else:
-                                            Color.pl('{?} {W}{D}invalid file: {G}%s{W}' % f)
+                        Color.pl('{?} {W}{D}checking file consistency...{W}')
+                        t_files = [
+                            f for f in self.get_files(tmpdirname)
+                            if f is not None or f.strip() != ''
+                        ]
+                        files = []
+                        with progress.Bar(label=" Parsing ", expected_size=len(t_files)) as bar:
+                            try:
+                                for idx, f in enumerate(t_files):
+                                    bar.show(idx)
+                                    f1 = Bloodhound.BloodhoundFile(f)
+                                    if f1.type != 'unknown':
+                                        files.append(f1)
+                                    else:
+                                        Color.pl('{?} {W}{D}invalid file: {G}%s{W}' % f)
 
-                                except KeyboardInterrupt as e:
-                                    raise e
-                                finally:
-                                    bar.hide = True
-                                    Tools.clear_line()
+                            except KeyboardInterrupt as e:
+                                raise e
+                            finally:
+                                bar.hide = True
+                                Tools.clear_line()
 
-                            Color.pl('{?} {W}{O}%s{G} valid files in ZIP{W}' % len(files))
+                        Color.pl('{?} {W}{O}%s{G} valid files in ZIP{W}' % len(files))
 
-                            self.parse_files(files)
+                        self.parse_files(files)
 
-                        finally:
-                            shutil.rmtree(tmpdirname)
+                    finally:
+                        shutil.rmtree(str(tmpdirname))
                 else:
                     f = Bloodhound.BloodhoundFile(self.filename)
                     if f.type == 'unknown':
